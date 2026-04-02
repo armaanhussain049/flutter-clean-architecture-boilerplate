@@ -3,18 +3,22 @@ abstract class AppConfig {
   String get baseUrl;
   String get apiKey;
   bool get enableLogging;
+  int get postsPerPage;
 }
 
 /// Development configuration
 class DevConfig implements AppConfig {
   @override
-  String get baseUrl => 'https://api.dev.example.com';
+  String get baseUrl => 'https://jsonplaceholder.typicode.com';
 
   @override
   String get apiKey => 'dev_api_key';
 
   @override
   bool get enableLogging => true;
+
+  @override
+  int get postsPerPage => 10;
 }
 
 /// Production configuration
@@ -27,6 +31,9 @@ class ProdConfig implements AppConfig {
 
   @override
   bool get enableLogging => false;
+
+  @override
+  int get postsPerPage => 20;
 }
 
 /// Flavor enum

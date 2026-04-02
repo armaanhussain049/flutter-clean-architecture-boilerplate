@@ -198,7 +198,31 @@ UI Event → BLoC → Use Case → Repository → Data Source → API/Cache
 
 ---
 
-## 🧪 Testing
+## 📱 Demo Flow
+
+1. **Launch App** → Check for cached user (auto-login)
+2. **Login Screen** → Enter credentials (test@example.com / password)
+3. **Home Screen** → Welcome message with user info
+4. **View Posts** → Infinite scroll paginated list
+5. **Offline Support** → Cached data when offline
+6. **Logout** → Clear cache and return to login
+
+### 🎬 Screenshots (Conceptual)
+
+```
+Login Screen              Home Screen               Posts List
+┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
+│ Email: ________ │      │ Welcome, User!  │      │ ┌─────────────┐ │
+│ Password: _____ │      │ Email: ...      │      │ │ Post Title   │ │
+│ [Login]         │      │ Token: ...      │      │ │ Post body... │ │
+└─────────────────┘      │                 │      │ └─────────────┘ │
+                         │ [View Posts]    │      │ ┌─────────────┐ │
+                         └─────────────────┘      │ │ Loading...   │ │
+                                                  │ └─────────────┘ │
+                                                  └─────────────────┘
+```
+
+---
 
 The project includes comprehensive unit tests for all layers:
 

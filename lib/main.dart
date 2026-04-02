@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_clean_architecture_boilerplate/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_clean_architecture_boilerplate/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter_clean_architecture_boilerplate/features/auth/presentation/pages/login_page.dart';
+import 'package:flutter_clean_architecture_boilerplate/features/posts/presentation/pages/posts_page.dart';
 import 'package:flutter_clean_architecture_boilerplate/injection_container.dart' as di;
 
 void main() async {
@@ -95,6 +96,21 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: 10),
                       Text('Token: ${state.user.token!.substring(0, 20)}...'),
                     ],
+                    const SizedBox(height: 40),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BlocProvider(
+                              create: (_) => di.sl<PostsBloc>(),
+                              child: const PostsPage(),
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text('View Posts'),
+                    ),
                   ],
                 ),
               );
