@@ -30,6 +30,31 @@ Presentation → Domain → Data
 * **Domain**: Business logic (pure Dart)
 * **Data**: API, models, repository implementations
 
+### 🏗️ Architecture Diagram
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Presentation  │    │     Domain      │    │      Data       │
+│                 │    │                 │    │                 │
+│ • UI Components │◄──►│ • Entities      │◄──►│ • Models        │
+│ • BLoC          │    │ • Use Cases     │    │ • Repositories  │
+│ • State Mgmt    │    │ • Repositories  │    │ • Data Sources  │
+│                 │    │   Interfaces    │    │ • API Clients   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+       ▲                       ▲                       ▲
+       │                       │                       │
+       └───────────────────────┼───────────────────────┘
+                               ▼
+                    ┌─────────────────┐
+                    │   Core          │
+                    │                 │
+                    │ • Error Handling│
+                    │ • Network Info  │
+                    │ • Utils         │
+                    │ • Use Cases     │
+                    └─────────────────┘
+```
+
 ---
 
 ## 📂 Project Structure
@@ -37,20 +62,48 @@ Presentation → Domain → Data
 ```
 lib/
 │
+├── config/
+│   ├── app_config.dart          # Environment configurations
+│
 ├── core/
 │   ├── error/
+│   │   └── failure.dart         # Error handling classes
 │   ├── network/
-│   ├── utils/
+│   │   ├── network_info.dart    # Network connectivity interface
+│   │   └── network_info_impl.dart # Network implementation
+│   ├── utils/                   # Utility functions
 │   └── usecases/
+│       └── usecase.dart         # Base use case class
 │
 ├── features/
 │   └── auth/
 │       ├── data/
+│       │   ├── datasources/
+│       │   │   ├── auth_remote_data_source.dart     # Remote API interface
+│       │   │   ├── auth_remote_data_source_impl.dart # API implementation
+│       │   │   └── auth_local_data_source.dart      # Local storage interface
+│       │   ├── models/
+│       │   │   └── user_model.dart                  # Data models
+│       │   └── repositories/
+│       │       └── auth_repository_impl.dart        # Repository implementation
 │       ├── domain/
+│       │   ├── entities/
+│       │   │   └── user.dart                        # Domain entities
+│       │   ├── repositories/
+│       │   │   └── auth_repository.dart             # Repository interface
+│       │   └── usecases/
+│       │       ├── login.dart                       # Login use case
+│       │       └── logout.dart                      # Logout use case
 │       └── presentation/
+│           ├── bloc/
+│           │   ├── auth_bloc.dart                   # Authentication BLoC
+│           │   ├── auth_event.dart                  # BLoC events
+│           │   └── auth_state.dart                  # BLoC states
+│           └── pages/
+│               └── login_page.dart                  # Login UI
 │
-├── injection_container.dart
-└── main.dart
+├── injection_container.dart     # Dependency injection setup
+└── main.dart                    # App entry point
 ```
 
 ---
@@ -67,7 +120,17 @@ lib/
 
 ✅ Modular Feature-Based Structure
 
-✅ Ready for API Integration
+✅ API Integration with Dio
+
+✅ Local Caching with SharedPreferences
+
+✅ Network Connectivity Checking
+
+✅ Environment Configuration (Dev/Prod)
+
+✅ Token-based Authentication
+
+✅ Comprehensive Error Handling
 
 ---
 
@@ -78,7 +141,11 @@ lib/
 * flutter_bloc
 * get_it
 * equatable
-* dio (recommended)
+* dio
+* dartz (functional programming)
+* shared_preferences
+* internet_connection_checker
+* mockito (testing)
 
 ---
 
@@ -102,31 +169,89 @@ flutter pub get
 flutter run
 ```
 
+### 4. Run tests
+
+```
+flutter test
+```
+
 ---
 
 ## 🧩 Example Flow (Login Feature)
 
-1. UI triggers event → `LoginRequested`
-2. BLoC handles event → calls UseCase
-3. UseCase calls Repository
-4. Repository fetches data from API
-5. Response flows back → UI updates state
+1. **UI triggers event** → `LoginRequested`
+2. **BLoC handles event** → calls `LoginUseCase`
+3. **UseCase calls Repository** → orchestrates data flow
+4. **Repository checks network** → calls remote/local data sources
+5. **Data source fetches data** → returns result or error
+6. **Response flows back** → UI updates state
+
+### 🔄 Data Flow Diagram
+
+```
+UI Event → BLoC → Use Case → Repository → Data Source → API/Cache
+    ↓         ↓        ↓          ↓          ↓          ↓
+   State   Emit State  Either     Either     Either     Result
+    ↑         ↑        ↑          ↑          ↑          ↑
+   UI      Rebuild    Handle     Handle     Handle     Parse
+```
 
 ---
 
 ## 🧪 Testing
 
-Recommended:
+The project includes comprehensive unit tests for all layers:
 
-* Unit Tests → Domain layer
-* Widget Tests → UI layer
-* Bloc Tests → State transitions
+* **Domain Layer**: Use cases and entities
+* **Data Layer**: Repositories and data sources
+* **Presentation Layer**: BLoC state management
 
 Run tests:
 
 ```
 flutter test
 ```
+
+Generate mocks for testing:
+
+```
+flutter pub run build_runner build
+```
+
+---
+
+## 🌍 Environment Configuration
+
+The app supports multiple environments:
+
+```dart
+// Switch environment
+currentFlavor = Flavor.dev;  // or Flavor.prod
+
+// Access config
+final config = appConfig;
+print(config.baseUrl);      // Different for dev/prod
+print(config.enableLogging); // true for dev, false for prod
+```
+
+---
+
+## 💾 Caching & Offline Support
+
+User authentication state is cached locally using SharedPreferences:
+
+- **Login**: User data cached after successful authentication
+- **App Start**: Check for cached user to auto-login
+- **Logout**: Clear cached data
+
+---
+
+## 🔐 Authentication Features
+
+- **Login/Logout**: Complete auth flow with token management
+- **Auto-login**: Persist user session across app restarts
+- **Token Storage**: Secure token handling
+- **Error Handling**: Comprehensive error states and messages
 
 ---
 
@@ -136,6 +261,7 @@ flutter test
 * freezed → Immutable models
 * go_router → Navigation
 * hydrated_bloc → State persistence
+* flutter_secure_storage → Secure token storage
 
 ---
 
@@ -144,8 +270,9 @@ flutter test
 * Dark Mode Support
 * Localization (i18n)
 * CI/CD Integration
-* Environment Config (Dev/Prod)
 * Pagination & Caching Layer
+* Push Notifications
+* Biometric Authentication
 
 ---
 
